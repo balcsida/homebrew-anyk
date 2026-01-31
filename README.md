@@ -1,121 +1,121 @@
 # Homebrew ÁNYK Tap
 
-Homebrew tap for installing [ÁNYK (AbevJava)](https://nav.gov.hu/nyomtatvanyok/letoltesek/nyomtatvanykitolto_programok/nyomtatvany_apeh/keretprogramok/AbevJava) - the Hungarian Tax Authority (NAV) form filling application on macOS.
+Homebrew tap az [ÁNYK (AbevJava)](https://nav.gov.hu/nyomtatvanyok/letoltesek/nyomtatvanykitolto_programok/nyomtatvany_apeh/keretprogramok/AbevJava) telepítéséhez macOS-en - a Nemzeti Adó- és Vámhivatal (NAV) nyomtatványkitöltő programja.
 
-## Installation
+## Telepítés
 
-### Option 1: Standalone App (No Homebrew Required)
+### 1. lehetőség: Önálló alkalmazás (Homebrew nélkül)
 
-Download the standalone **universal** `.app` bundle from the [Releases](https://github.com/balcsida/homebrew-anyk/releases) page:
+Töltsd le az **univerzális** `.app` csomagot a [Releases](https://github.com/balcsida/homebrew-anyk/releases) oldalról:
 
-- **Universal (Intel + Apple Silicon)**: `ANYK-vX.X.X-universal.dmg`
+- **Univerzális (Intel + Apple Silicon)**: `ANYK-vX.X.X-universal.dmg`
 
-The standalone app works on both Intel and Apple Silicon Macs, includes an embedded Java 21 runtime, and has all NAV form templates pre-installed - no additional software or downloads needed.
+Az önálló alkalmazás Intel és Apple Silicon Mac gépeken is működik, tartalmazza a Java 21 futtatókörnyezetet és az összes NAV nyomtatványsablont - nincs szükség további szoftverekre.
 
-**Installation:**
-1. Download the appropriate DMG for your Mac
-2. Open the DMG file
-3. Drag ÁNYK to your Applications folder
-4. Right-click and select "Open" (first time only, to bypass Gatekeeper)
+**Telepítés:**
+1. Töltsd le a DMG fájlt
+2. Nyisd meg a DMG fájlt
+3. Húzd az ÁNYK-t az Applications mappába
+4. Jobb klikk → "Megnyitás" (csak első alkalommal, a Gatekeeper megkerüléséhez)
 
-### Option 2: Homebrew
+### 2. lehetőség: Homebrew
 
-First, add this tap:
+Először add hozzá a tap-ot:
 
 ```bash
 brew tap balcsida/anyk
 ```
 
-Then install ÁNYK:
+Ezután telepítsd az ÁNYK-t:
 
 ```bash
 brew install --cask anyk
 ```
 
-## Usage
+## Használat
 
-After installation, you can:
+Telepítés után:
 
-1. **Launch from Applications**: Open "ÁNYK" from `~/Applications`
-2. **Launch from Terminal**: Run `anyk`
+1. **Indítás az Alkalmazásokból**: Nyisd meg az "ÁNYK"-t a `~/Applications` mappából
+2. **Indítás Terminálból**: Futtasd az `anyk` parancsot
 
-The installation is fully automated - no GUI wizard required.
+A telepítés teljesen automatizált - nincs szükség GUI varázslóra.
 
-### Data Locations
+### Adatok helye
 
-- **Program files**: `$(brew --prefix)/share/abevjava`
-- **User data**: `~/abevjava`
-- **Electronic submissions**: `~/abevjava/eKuldes`
-- **User config**: `~/.abevjava/<username>.enyk`
+- **Programfájlok**: `$(brew --prefix)/share/abevjava`
+- **Felhasználói adatok**: `~/abevjava`
+- **Elektronikus beküldések**: `~/abevjava/eKuldes`
+- **Felhasználói konfiguráció**: `~/.abevjava/<felhasználónév>.enyk`
 
-## Form Templates
+## Nyomtatványsablonok
 
-ÁNYK requires form templates to create tax forms. Templates are installed automatically without GUI interaction.
+Az ÁNYK nyomtatványsablonokat igényel az űrlapok létrehozásához. A sablonok automatikusan települnek, GUI interakció nélkül.
 
-### Available Templates
+### Elérhető sablonok
 
-| Cask | Description | Install Command |
-|------|-------------|-----------------|
-| `anyk-nav-igazol` | NAV certificate request form | `brew install --cask anyk-nav-igazol` |
-| `anyk-08e` | NAV 08E form | `brew install --cask anyk-08e` |
-| `anyk-24hipak` | NAV 24HIPAK form | `brew install --cask anyk-24hipak` |
-| `anyk-2541` | NAV 2541 form | `brew install --cask anyk-2541` |
-| `anyk-25hipak` | NAV 25HIPAK form | `brew install --cask anyk-25hipak` |
-| `anyk-2658` | NAV 2658 form | `brew install --cask anyk-2658` |
-| `anyk-26hipak` | NAV 26HIPAK form | `brew install --cask anyk-26hipak` |
-| `anyk-26kisker` | NAV 26KISKER form | `brew install --cask anyk-26kisker` |
-| `anyk-26ktbev` | NAV 26KTBEV form | `brew install --cask anyk-26ktbev` |
-| `anyk-nav-j24` | NAV J24 form | `brew install --cask anyk-nav-j24` |
-| `anyk-nav-j28` | NAV J28 form | `brew install --cask anyk-nav-j28` |
-| `anyk-nav-j31` | NAV J31 form | `brew install --cask anyk-nav-j31` |
-| `anyk-nav-j32` | NAV J32 form | `brew install --cask anyk-nav-j32` |
+| Cask | Leírás | Telepítési parancs |
+|------|--------|--------------------|
+| `anyk-nav-igazol` | NAV igazolás kérelem | `brew install --cask anyk-nav-igazol` |
+| `anyk-08e` | NAV 08E nyomtatvány | `brew install --cask anyk-08e` |
+| `anyk-24hipak` | NAV 24HIPAK nyomtatvány | `brew install --cask anyk-24hipak` |
+| `anyk-2541` | NAV 2541 nyomtatvány | `brew install --cask anyk-2541` |
+| `anyk-25hipak` | NAV 25HIPAK nyomtatvány | `brew install --cask anyk-25hipak` |
+| `anyk-2658` | NAV 2658 nyomtatvány | `brew install --cask anyk-2658` |
+| `anyk-26hipak` | NAV 26HIPAK nyomtatvány | `brew install --cask anyk-26hipak` |
+| `anyk-26kisker` | NAV 26KISKER nyomtatvány | `brew install --cask anyk-26kisker` |
+| `anyk-26ktbev` | NAV 26KTBEV nyomtatvány | `brew install --cask anyk-26ktbev` |
+| `anyk-nav-j24` | NAV J24 nyomtatvány | `brew install --cask anyk-nav-j24` |
+| `anyk-nav-j28` | NAV J28 nyomtatvány | `brew install --cask anyk-nav-j28` |
+| `anyk-nav-j31` | NAV J31 nyomtatvány | `brew install --cask anyk-nav-j31` |
+| `anyk-nav-j32` | NAV J32 nyomtatvány | `brew install --cask anyk-nav-j32` |
 
-### Install Multiple Templates
+### Több sablon telepítése egyszerre
 
 ```bash
 brew install --cask anyk-nav-igazol anyk-24hipak anyk-nav-j28
 ```
 
-## Requirements
+## Követelmények
 
-- macOS 10.13 or later
-- Java 21 (automatically installed via `temurin@21` dependency)
+- macOS 10.13 vagy újabb
+- Java 21 (automatikusan települ a `temurin@21` függőségként)
 
-## Features
+## Funkciók
 
-- **HiDPI/Retina display support** - Crisp rendering on high-resolution displays
-- **Fully automated installation** - No GUI wizard required
-- **Native ARM64 support** - Runs natively on Apple Silicon Macs
+- **HiDPI/Retina kijelző támogatás** - Éles megjelenítés nagy felbontású kijelzőkön
+- **Teljesen automatizált telepítés** - Nincs szükség GUI varázslóra
+- **Natív ARM64 támogatás** - Natívan fut Apple Silicon Mac gépeken
 
-## Uninstallation
+## Eltávolítás
 
-To remove ÁNYK:
+Az ÁNYK eltávolítása:
 
 ```bash
 brew uninstall --cask anyk
 ```
 
-To also remove user data and configuration:
+Felhasználói adatok és konfiguráció eltávolítása is:
 
 ```bash
 brew uninstall --cask --zap anyk
 ```
 
-## Troubleshooting
+## Hibaelhárítás
 
-### Java not found
+### Java nem található
 
-If you get a Java error, ensure Java 21 is installed:
+Ha Java hibát kapsz, győződj meg róla, hogy a Java 21 telepítve van:
 
 ```bash
 brew install --cask temurin@21
 ```
 
-## License
+## Licenc
 
-This tap is provided as-is for convenience. ÁNYK is developed and maintained by the Hungarian Tax Authority (NAV).
+Ez a tap a felhasználók kényelméért készült. Az ÁNYK-t a Nemzeti Adó- és Vámhivatal (NAV) fejleszti és tartja karban.
 
-## Links
+## Linkek
 
-- [ÁNYK Official Page](https://nav.gov.hu/nyomtatvanyok/letoltesek/nyomtatvanykitolto_programok/nyomtatvany_apeh/keretprogramok/AbevJava)
-- [NAV Forms Portal](https://nav.gov.hu/nyomtatvanyok)
+- [ÁNYK hivatalos oldal](https://nav.gov.hu/nyomtatvanyok/letoltesek/nyomtatvanykitolto_programok/nyomtatvany_apeh/keretprogramok/AbevJava)
+- [NAV Nyomtatványok portál](https://nav.gov.hu/nyomtatvanyok)

@@ -58,15 +58,25 @@ cask "anyk" do
 
       # Create user directories if they don't exist
       mkdir -p "$USER_CONFIG_DIR"
-      mkdir -p "$USER_DATA_DIR/eKuldes"
+      mkdir -p "$USER_DATA_DIR"/{mentesek,archivum,import,beallitasok,kontroll,csatolmanyok,tmp,naplo,frissitesek,torzsadatok,eKuldes}
+      mkdir -p "$USER_DATA_DIR/KR"/{digitalis_alairas,kuldendo,elkuldott}
 
       # Create user config if it doesn't exist
       if [ ! -f "$USER_CONFIG" ]; then
         cat > "$USER_CONFIG" << ENYK
-prop.usr.naplo=$USER_DATA_DIR/naplo
 prop.usr.root=$USER_DATA_DIR
-prop.usr.frissitesek=$USER_DATA_DIR/frissitesek
-prop.usr.primaryaccounts=$USER_DATA_DIR/torzsadatok
+prop.usr.saves=mentesek
+prop.usr.archive=archivum
+prop.usr.import=import
+prop.usr.settings=beallitasok
+prop.usr.kontroll=kontroll
+prop.usr.attachment=csatolmanyok
+prop.usr.tmp=tmp
+prop.usr.tmp_xml=xml
+prop.usr.tmp_calc=calc
+prop.usr.ds_src=KR/digitalis_alairas
+prop.usr.ds_dest=KR/kuldendo
+prop.usr.ds_sent=KR/elkuldott
 ENYK
       fi
 
@@ -75,7 +85,7 @@ ENYK
 
       # Run ÁNYK
       cd "$ANYK_HOME"
-      exec "$JAVA_HOME/bin/java" -jar "$ANYK_HOME/abevjava.jar" "useroptionfile=$USER_CONFIG"
+      exec "$JAVA_HOME/bin/java" -jar "$ANYK_HOME/abevjava.jar" cfg=cfg.enyk "useroptionfile=$USER_CONFIG"
     EOS
     FileUtils.chmod(0755, launcher_script)
 

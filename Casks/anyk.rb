@@ -128,7 +128,6 @@ ENYK
 
   uninstall delete: [
     "#{HOMEBREW_PREFIX}/bin/anyk",
-    "#{HOMEBREW_PREFIX}/share/anyk",
     "#{HOMEBREW_PREFIX}/share/abevjava",
     "#{HOMEBREW_PREFIX}/etc/abevjavapath.cfg",
     "#{Dir.home}/Applications/ÁNYK.app",

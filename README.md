@@ -63,7 +63,13 @@ brew install --cask anyk-nav-igazol anyk-24hipak anyk-nav-j28
 ## Requirements
 
 - macOS 10.13 or later
-- Java 8 (automatically installed via `zulu@8` dependency)
+- Java 21 (automatically installed via `temurin@21` dependency)
+
+## Features
+
+- **HiDPI/Retina display support** - Crisp rendering on high-resolution displays
+- **Fully automated installation** - No GUI wizard required
+- **Native ARM64 support** - Runs natively on Apple Silicon Macs
 
 ## Uninstallation
 
@@ -83,19 +89,10 @@ brew uninstall --cask --zap anyk
 
 ### Java not found
 
-If you get a Java error, ensure Java 8 is installed:
+If you get a Java error, ensure Java 21 is installed:
 
 ```bash
-brew install --cask zulu@8
-```
-
-### Display issues
-
-If you experience display rendering issues, try setting these Java options:
-
-```bash
-export _JAVA_OPTIONS="-Dsun.java2d.xrender=false"
-anyk
+brew install --cask temurin@21
 ```
 
 ## License

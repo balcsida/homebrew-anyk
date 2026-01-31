@@ -1,15 +1,17 @@
 name: Build ÁNYK App Bundle
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version tag for the release (e.g., v1.0.0)'
-        required: false
-        default: 'latest'
+        description: 'Version for the release (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+      create_release:
+        description: 'Create a GitHub release'
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   build:
@@ -23,24 +25,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set version
-        id: version
-        run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
-            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          else
-            echo "version=${{ github.event.inputs.version || 'latest' }}" >> $GITHUB_OUTPUT
-          fi
-
       - name: Download ÁNYK installer
         run: |
           curl -sL -o abevjava_install.jar \
             "https://nav.gov.hu/pfile/programFile?path=/nyomtatvanyok/letoltesek/nyomtatvanykitolto_programok/nyomtatvany_apeh/keretprogramok/AbevJava"
+          echo "Downloaded ÁNYK installer: $(ls -lh abevjava_install.jar)"
 
       - name: Extract ÁNYK application files
         run: |
           unzip -o -q abevjava_install.jar "application/*" -d .
           unzip -o -q abevjava_install.jar "os/install/mac/*" -d .
+          echo "Extracted application files:"
+          ls -la application/
 
       - name: Download Eclipse Temurin JRE 21 (${{ matrix.arch }})
         run: |
@@ -49,9 +45,11 @@ jobs:
           else
             JRE_URL="https://api.adoptium.net/v3/binary/latest/21/ga/mac/x64/jre/hotspot/normal/eclipse"
           fi
+          echo "Downloading JRE from: $JRE_URL"
           curl -sL -o jre.tar.gz "$JRE_URL"
           mkdir -p jre
           tar -xzf jre.tar.gz -C jre --strip-components=1
+          echo "JRE extracted: $(ls jre/)"
 
       - name: Download JAXB dependencies
         run: |
@@ -66,32 +64,30 @@ jobs:
             "https://repo1.maven.org/maven2/com/sun/istack/istack-commons-runtime/3.0.11/istack-commons-runtime-3.0.11.jar"
           curl -sL -o lib/jakarta.activation-1.2.2.jar \
             "https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/1.2.2/jakarta.activation-1.2.2.jar"
+          echo "Downloaded JAXB libs:"
+          ls -la lib/
 
       - name: Download and extract NAV form templates
         run: |
           mkdir -p templates
 
           # Template definitions: folder|filename
-          declare -a TEMPLATES=(
-            "igazol|NAV_igazol"
-            "08E|nav_08e"
-            "24HIPAK|nav_24hipak"
-            "2541|nav_2541"
-            "25HIPAK|nav_25hipak"
-            "2658|nav_2658"
-            "26HIPAK|nav_26hipak"
-            "26KISKER|nav_26kisker"
-            "26KTBEV|nav_26ktbev"
-            "NAV_J28|NAV_nav_j28"
-            "NAV_J31|NAV_nav_j31"
-            "NAV_J32|NAV_j32"
-            "nav_j24|NAV_j24"
-          )
+          TEMPLATES="igazol|NAV_igazol
+          08E|nav_08e
+          24HIPAK|nav_24hipak
+          2541|nav_2541
+          25HIPAK|nav_25hipak
+          2658|nav_2658
+          26HIPAK|nav_26hipak
+          26KISKER|nav_26kisker
+          26KTBEV|nav_26ktbev
+          NAV_J28|NAV_nav_j28
+          NAV_J31|NAV_nav_j31
+          NAV_J32|NAV_j32
+          nav_j24|NAV_j24"
 
-          for template in "${TEMPLATES[@]}"; do
-            IFS='|' read -r folder filename <<< "$template"
+          echo "$TEMPLATES" | while IFS='|' read -r folder filename; do
             echo "Downloading template: $folder/$filename"
-
             curl -sL -o "templates/${filename}.jar" \
               "https://nav.gov.hu/pfile/programFile?path=/nyomtatvanyok/letoltesek/nyomtatvanykitolto_programok/nyomtatvanykitolto_programok_nav/${folder}/${filename}"
 
@@ -101,11 +97,11 @@ jobs:
 
           # List extracted templates
           echo "Extracted templates:"
-          find templates/application -name "*.tem.enyk" 2>/dev/null || true
+          find templates/application -name "*.tem.enyk" 2>/dev/null | head -20 || echo "No templates found"
 
       - name: Create app bundle structure
         run: |
-          APP_NAME="ÁNYK.app"
+          APP_NAME="ANYK.app"
           mkdir -p "$APP_NAME/Contents/MacOS"
           mkdir -p "$APP_NAME/Contents/Resources"
           mkdir -p "$APP_NAME/Contents/Java"
@@ -114,7 +110,7 @@ jobs:
 
       - name: Copy application files
         run: |
-          APP_NAME="ÁNYK.app"
+          APP_NAME="ANYK.app"
           # Copy ÁNYK application files
           cp -r application/* "$APP_NAME/Contents/Java/"
           # Copy JAXB libs
@@ -129,12 +125,12 @@ jobs:
           fi
           # List included templates
           echo "Included templates:"
-          ls -la "$APP_NAME/Contents/Java/nyomtatvanyok/" 2>/dev/null || echo "No templates found"
+          ls -la "$APP_NAME/Contents/Java/nyomtatvanyok/" 2>/dev/null | head -20 || echo "No templates found"
 
       - name: Create Info.plist
         run: |
-          APP_NAME="ÁNYK.app"
-          cat > "$APP_NAME/Contents/Info.plist" << 'EOF'
+          APP_NAME="ANYK.app"
+          cat > "$APP_NAME/Contents/Info.plist" << 'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -148,9 +144,9 @@ jobs:
             <key>CFBundleIdentifier</key>
             <string>hu.gov.nav.anyk</string>
             <key>CFBundleName</key>
-            <string>ÁNYK</string>
+            <string>ANYK</string>
             <key>CFBundleDisplayName</key>
-            <string>ÁNYK - NAV Form Filler</string>
+            <string>ANYK - NAV Form Filler</string>
             <key>CFBundlePackageType</key>
             <string>APPL</string>
             <key>CFBundleVersion</key>
@@ -165,12 +161,12 @@ jobs:
             <string>10.13</string>
           </dict>
           </plist>
-          EOF
+          PLIST
 
       - name: Create launcher script
         run: |
-          APP_NAME="ÁNYK.app"
-          cat > "$APP_NAME/Contents/MacOS/anyk" << 'EOF'
+          APP_NAME="ANYK.app"
+          cat > "$APP_NAME/Contents/MacOS/anyk" << 'LAUNCHER'
           #!/bin/bash
 
           # Get the directory where the app bundle is located
@@ -222,10 +218,10 @@ jobs:
             --add-opens java.base/java.lang=ALL-UNNAMED \
             --add-opens java.desktop/sun.awt=ALL-UNNAMED \
             -Xbootclasspath/a:"$JAXB_CLASSPATH" \
-            -Xdock:name="ÁNYK" \
+            -Xdock:name="ANYK" \
             -Xdock:icon="$APP_DIR/Contents/Resources/anyk.icns" \
             -jar "$ANYK_HOME/abevjava.jar" cfg=cfg.enyk "useroptionfile=$USER_CONFIG"
-          EOF
+          LAUNCHER
           chmod +x "$APP_NAME/Contents/MacOS/anyk"
 
       - name: Create DMG
@@ -236,21 +232,21 @@ jobs:
           else
             ARCH_NAME="x64"
           fi
-          VERSION="${{ steps.version.outputs.version }}"
+          VERSION="${{ inputs.version }}"
           DMG_NAME="ANYK-${VERSION}-${ARCH_NAME}.dmg"
 
           # Create a temporary directory for DMG contents
           mkdir -p dmg_contents
-          cp -r "ÁNYK.app" dmg_contents/
+          cp -r "ANYK.app" dmg_contents/
 
           # Create a symlink to Applications
           ln -s /Applications dmg_contents/Applications
 
           # Create DMG
-          hdiutil create -volname "ÁNYK" -srcfolder dmg_contents -ov -format UDZO "$DMG_NAME"
+          hdiutil create -volname "ANYK" -srcfolder dmg_contents -ov -format UDZO "$DMG_NAME"
 
-          echo "dmg_name=$DMG_NAME" >> $GITHUB_OUTPUT
-        id: dmg
+          echo "Created DMG: $DMG_NAME"
+          ls -lh "$DMG_NAME"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -261,7 +257,7 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: ${{ inputs.create_release }}
 
     permissions:
       contents: write
@@ -271,12 +267,17 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-          merge-multiple: true
+
+      - name: List artifacts
+        run: |
+          echo "Downloaded artifacts:"
+          find artifacts -type f -name "*.dmg"
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          name: "ÁNYK ${{ github.ref_name }}"
+          tag_name: ${{ inputs.version }}
+          name: "ÁNYK ${{ inputs.version }}"
           body: |
             ## ÁNYK Standalone App Bundle
 
@@ -285,8 +286,8 @@ jobs:
 
             ### Downloads
 
-            - **Apple Silicon (M1/M2/M3/M4)**: `ANYK-${{ github.ref_name }}-arm64.dmg`
-            - **Intel Macs**: `ANYK-${{ github.ref_name }}-x64.dmg`
+            - **Apple Silicon (M1/M2/M3/M4)**: `ANYK-${{ inputs.version }}-arm64.dmg`
+            - **Intel Macs**: `ANYK-${{ inputs.version }}-x64.dmg`
 
             ### Installation
 
@@ -315,6 +316,7 @@ jobs:
             - User data is stored in: `~/abevjava`
             - Electronic submissions: `~/abevjava/eKuldes`
             - Configuration: `~/.abevjava/`
-          files: artifacts/*.dmg
+          files: artifacts/**/*.dmg
           draft: false
           prerelease: false
+          make_latest: true

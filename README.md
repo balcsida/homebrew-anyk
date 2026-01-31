@@ -2,6 +2,8 @@
 
 Homebrew tap az [ÁNYK (AbevJava)](https://nav.gov.hu/nyomtatvanyok/letoltesek/nyomtatvanykitolto_programok/nyomtatvany_apeh/keretprogramok/AbevJava) telepítéséhez macOS-en - a Nemzeti Adó- és Vámhivatal (NAV) nyomtatványkitöltő programja.
 
+![ÁNYK macOS-en](images/screenshot.jpeg)
+
 ## Telepítés
 
 ### 1. lehetőség: Önálló alkalmazás (Homebrew nélkül)

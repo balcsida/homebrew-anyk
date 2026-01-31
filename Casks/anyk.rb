@@ -75,7 +75,7 @@ ENYK
 
       # Run ÁNYK
       cd "$ANYK_HOME"
-      exec "$JAVA_HOME/bin/java" -jar "$ANYK_HOME/boot.jar" "useroptionfile=$USER_CONFIG"
+      exec "$JAVA_HOME/bin/java" -jar "$ANYK_HOME/abevjava.jar" "useroptionfile=$USER_CONFIG"
     EOS
     FileUtils.chmod(0755, launcher_script)
 

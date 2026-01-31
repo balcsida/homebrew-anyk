@@ -12,7 +12,7 @@ cask "nav-igazol" do
 
   preflight do
     # Check if ÁNYK is installed
-    config_file = "/usr/local/etc/abevjavapath.cfg"
+    config_file = "#{HOMEBREW_PREFIX}/etc/abevjavapath.cfg"
     unless File.exist?(config_file)
       odie "ÁNYK is not installed. Please run 'anyk' first to complete the installation."
     end
@@ -20,7 +20,7 @@ cask "nav-igazol" do
 
   postflight do
     # Get ÁNYK installation directory
-    config_file = "/usr/local/etc/abevjavapath.cfg"
+    config_file = "#{HOMEBREW_PREFIX}/etc/abevjavapath.cfg"
     anyk_dir = File.read(config_file).strip if File.exist?(config_file)
 
     if anyk_dir.nil? || anyk_dir.empty? || !Dir.exist?(anyk_dir)

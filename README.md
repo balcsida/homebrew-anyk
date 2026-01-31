@@ -4,6 +4,25 @@ Homebrew tap for installing [ÁNYK (AbevJava)](https://nav.gov.hu/nyomtatvanyok/
 
 ## Installation
 
+### Option 1: Standalone App (No Homebrew Required)
+
+Download the standalone `.app` bundle from the [Releases](https://github.com/balcsida/homebrew-anyk/releases) page:
+
+| Mac Type | Download |
+|----------|----------|
+| Apple Silicon (M1/M2/M3/M4) | `ANYK-vX.X.X-arm64.dmg` |
+| Intel | `ANYK-vX.X.X-x64.dmg` |
+
+The standalone app includes an embedded Java 21 runtime - no additional software needed.
+
+**Installation:**
+1. Download the appropriate DMG for your Mac
+2. Open the DMG file
+3. Drag ÁNYK to your Applications folder
+4. Right-click and select "Open" (first time only, to bypass Gatekeeper)
+
+### Option 2: Homebrew
+
 First, add this tap:
 
 ```bash

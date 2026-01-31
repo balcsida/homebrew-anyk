@@ -8,7 +8,7 @@ cask "anyk" do
   desc "Hungarian Tax Authority (NAV) form filling application"
   homepage "https://nav.gov.hu/nyomtatvanyok/letoltesek/nyomtatvanykitolto_programok/nyomtatvany_apeh/keretprogramok/AbevJava"
 
-  depends_on cask: "temurin@8"
+  depends_on cask: "zulu@8"
 
   # Keep the installer JAR for template installations
   artifact "abevjava_install.jar", target: "#{HOMEBREW_PREFIX}/share/anyk/abevjava_install.jar"
@@ -44,7 +44,7 @@ cask "anyk" do
 
       JAVA_HOME="$(/usr/libexec/java_home -v 1.8 2>/dev/null)"
       if [ -z "$JAVA_HOME" ]; then
-        echo "Error: Java 8 is required. Install it with: brew install --cask temurin@8"
+        echo "Error: Java 8 is required. Install it with: brew install --cask zulu@8"
         exit 1
       fi
 

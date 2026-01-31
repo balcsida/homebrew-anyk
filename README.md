@@ -46,7 +46,7 @@ brew install --cask nav-igazol
 ## Requirements
 
 - macOS 10.13 or later
-- Java 8 (automatically installed via `temurin@8` dependency)
+- Java 8 (automatically installed via `zulu@8` dependency)
 
 ## Uninstallation
 
@@ -69,7 +69,7 @@ brew uninstall --cask --zap anyk
 If you get a Java error, ensure Java 8 is installed:
 
 ```bash
-brew install --cask temurin@8
+brew install --cask zulu@8
 ```
 
 ### Display issues

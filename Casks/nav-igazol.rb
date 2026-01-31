@@ -8,7 +8,7 @@ cask "nav-igazol" do
   homepage "https://nav.gov.hu/nyomtatvanyok/letoltesek/nyomtatvanykitolto_programok/nyomtatvanykitolto_programok_nav/igazol"
 
   depends_on cask: "anyk"
-  depends_on cask: "temurin@8"
+  depends_on cask: "zulu@8"
 
   preflight do
     # Check if ÁNYK is installed

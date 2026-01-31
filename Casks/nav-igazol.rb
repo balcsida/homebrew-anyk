@@ -34,6 +34,17 @@ cask "nav-igazol" do
     end
   end
 
+  uninstall_preflight do
+    # Remove template files from ÁNYK installation
+    config_file = "#{HOMEBREW_PREFIX}/etc/abevjavapath.cfg"
+    if File.exist?(config_file)
+      anyk_dir = File.read(config_file).strip
+      Dir.glob("#{anyk_dir}/nyomtatvanyok/NAV_IGAZOL*.tem.enyk").each do |f|
+        FileUtils.rm_f(f)
+      end
+    end
+  end
+
   caveats <<~EOS
     NAV IGAZOL template has been installed automatically.
     Open ÁNYK and the template will be available.

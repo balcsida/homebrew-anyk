@@ -23,24 +23,41 @@ After installation, you can:
 1. **Launch from Applications**: Open "ÁNYK" from `~/Applications`
 2. **Launch from Terminal**: Run `anyk`
 
-On first run, the installer will guide you through the setup process.
+The installation is fully automated - no GUI wizard required.
 
-### Recommended Installation Paths
+### Data Locations
 
-When the installer asks for paths, use:
-
-- **Program directory**: `/usr/local/share/abevjava`
-- **User data directory**: `~/abevjava` (default)
-- **Electronic submission**: `~/abevjava/eKuldes`
+- **Program files**: `$(brew --prefix)/share/abevjava`
+- **User data**: `~/abevjava`
+- **Electronic submissions**: `~/abevjava/eKuldes`
+- **User config**: `~/.abevjava/<username>.enyk`
 
 ## Form Templates
 
-ÁNYK requires form templates to create tax forms. Install them separately:
+ÁNYK requires form templates to create tax forms. Templates are installed automatically without GUI interaction.
 
-### NAV IGAZOL (Certificate Request)
+### Available Templates
+
+| Cask | Description | Install Command |
+|------|-------------|-----------------|
+| `anyk-nav-igazol` | NAV certificate request form | `brew install --cask anyk-nav-igazol` |
+| `anyk-08e` | NAV 08E form | `brew install --cask anyk-08e` |
+| `anyk-24hipak` | NAV 24HIPAK form | `brew install --cask anyk-24hipak` |
+| `anyk-2541` | NAV 2541 form | `brew install --cask anyk-2541` |
+| `anyk-25hipak` | NAV 25HIPAK form | `brew install --cask anyk-25hipak` |
+| `anyk-2658` | NAV 2658 form | `brew install --cask anyk-2658` |
+| `anyk-26hipak` | NAV 26HIPAK form | `brew install --cask anyk-26hipak` |
+| `anyk-26kisker` | NAV 26KISKER form | `brew install --cask anyk-26kisker` |
+| `anyk-26ktbev` | NAV 26KTBEV form | `brew install --cask anyk-26ktbev` |
+| `anyk-nav-j24` | NAV J24 form | `brew install --cask anyk-nav-j24` |
+| `anyk-nav-j28` | NAV J28 form | `brew install --cask anyk-nav-j28` |
+| `anyk-nav-j31` | NAV J31 form | `brew install --cask anyk-nav-j31` |
+| `anyk-nav-j32` | NAV J32 form | `brew install --cask anyk-nav-j32` |
+
+### Install Multiple Templates
 
 ```bash
-brew install --cask nav-igazol
+brew install --cask anyk-nav-igazol anyk-24hipak anyk-nav-j28
 ```
 
 ## Requirements

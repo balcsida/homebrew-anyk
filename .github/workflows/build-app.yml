@@ -1,0 +1,268 @@
+name: Build ÁNYK App Bundle
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag for the release (e.g., v1.0.0)'
+        required: false
+        default: 'latest'
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        arch: [x64, aarch64]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${{ github.event.inputs.version || 'latest' }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download ÁNYK installer
+        run: |
+          curl -sL -o abevjava_install.jar \
+            "https://nav.gov.hu/pfile/programFile?path=/nyomtatvanyok/letoltesek/nyomtatvanykitolto_programok/nyomtatvany_apeh/keretprogramok/AbevJava"
+
+      - name: Extract ÁNYK application files
+        run: |
+          unzip -o -q abevjava_install.jar "application/*" -d .
+          unzip -o -q abevjava_install.jar "os/install/mac/*" -d .
+
+      - name: Download Eclipse Temurin JRE 21 (${{ matrix.arch }})
+        run: |
+          if [ "${{ matrix.arch }}" = "aarch64" ]; then
+            JRE_URL="https://api.adoptium.net/v3/binary/latest/21/ga/mac/aarch64/jre/hotspot/normal/eclipse"
+          else
+            JRE_URL="https://api.adoptium.net/v3/binary/latest/21/ga/mac/x64/jre/hotspot/normal/eclipse"
+          fi
+          curl -sL -o jre.tar.gz "$JRE_URL"
+          mkdir -p jre
+          tar -xzf jre.tar.gz -C jre --strip-components=1
+
+      - name: Download JAXB dependencies
+        run: |
+          mkdir -p lib
+          curl -sL -o lib/jakarta.xml.bind-api-2.3.3.jar \
+            "https://repo1.maven.org/maven2/jakarta/xml/bind/jakarta.xml.bind-api/2.3.3/jakarta.xml.bind-api-2.3.3.jar"
+          curl -sL -o lib/jaxb-runtime-2.3.3.jar \
+            "https://repo1.maven.org/maven2/org/glassfish/jaxb/jaxb-runtime/2.3.3/jaxb-runtime-2.3.3.jar"
+          curl -sL -o lib/jakarta.activation-api-1.2.2.jar \
+            "https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api/1.2.2/jakarta.activation-api-1.2.2.jar"
+          curl -sL -o lib/istack-commons-runtime-3.0.11.jar \
+            "https://repo1.maven.org/maven2/com/sun/istack/istack-commons-runtime/3.0.11/istack-commons-runtime-3.0.11.jar"
+          curl -sL -o lib/jakarta.activation-1.2.2.jar \
+            "https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/1.2.2/jakarta.activation-1.2.2.jar"
+
+      - name: Create app bundle structure
+        run: |
+          APP_NAME="ÁNYK.app"
+          mkdir -p "$APP_NAME/Contents/MacOS"
+          mkdir -p "$APP_NAME/Contents/Resources"
+          mkdir -p "$APP_NAME/Contents/Java"
+          mkdir -p "$APP_NAME/Contents/Java/lib"
+          mkdir -p "$APP_NAME/Contents/PlugIns"
+
+      - name: Copy application files
+        run: |
+          APP_NAME="ÁNYK.app"
+          # Copy ÁNYK application files
+          cp -r application/* "$APP_NAME/Contents/Java/"
+          # Copy JAXB libs
+          cp lib/*.jar "$APP_NAME/Contents/Java/lib/"
+          # Copy JRE
+          cp -r jre "$APP_NAME/Contents/PlugIns/jre"
+          # Copy icon
+          cp os/install/mac/abevjava.app/Contents/Resources/abevjava.icns "$APP_NAME/Contents/Resources/anyk.icns"
+
+      - name: Create Info.plist
+        run: |
+          APP_NAME="ÁNYK.app"
+          cat > "$APP_NAME/Contents/Info.plist" << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleDevelopmentRegion</key>
+            <string>Hungarian</string>
+            <key>CFBundleExecutable</key>
+            <string>anyk</string>
+            <key>CFBundleIconFile</key>
+            <string>anyk</string>
+            <key>CFBundleIdentifier</key>
+            <string>hu.gov.nav.anyk</string>
+            <key>CFBundleName</key>
+            <string>ÁNYK</string>
+            <key>CFBundleDisplayName</key>
+            <string>ÁNYK - NAV Form Filler</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleVersion</key>
+            <string>1.0</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+            <key>NSSupportsAutomaticGraphicsSwitching</key>
+            <true/>
+            <key>LSMinimumSystemVersion</key>
+            <string>10.13</string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Create launcher script
+        run: |
+          APP_NAME="ÁNYK.app"
+          cat > "$APP_NAME/Contents/MacOS/anyk" << 'EOF'
+          #!/bin/bash
+
+          # Get the directory where the app bundle is located
+          APP_DIR="$(cd "$(dirname "$0")/../.."; pwd)"
+          JAVA_HOME="$APP_DIR/Contents/PlugIns/jre/Contents/Home"
+          ANYK_HOME="$APP_DIR/Contents/Java"
+          ANYK_LIB="$ANYK_HOME/lib"
+
+          # User directories
+          USER_HOME="$HOME"
+          USERNAME="$(whoami)"
+          USER_CONFIG_DIR="$USER_HOME/.abevjava"
+          USER_CONFIG="$USER_CONFIG_DIR/$USERNAME.enyk"
+          USER_DATA_DIR="$USER_HOME/abevjava"
+
+          # JAXB classpath for Java 21 compatibility
+          JAXB_CLASSPATH="$ANYK_LIB/jakarta.xml.bind-api-2.3.3.jar:$ANYK_LIB/jaxb-runtime-2.3.3.jar:$ANYK_LIB/jakarta.activation-api-1.2.2.jar:$ANYK_LIB/jakarta.activation-1.2.2.jar:$ANYK_LIB/istack-commons-runtime-3.0.11.jar"
+
+          # Create user directories if they don't exist
+          mkdir -p "$USER_CONFIG_DIR"
+          mkdir -p "$USER_DATA_DIR"/{mentesek,archivum,import,beallitasok,kontroll,csatolmanyok,tmp,naplo,frissitesek,torzsadatok,eKuldes}
+          mkdir -p "$USER_DATA_DIR/KR"/{digitalis_alairas,kuldendo,elkuldott}
+
+          # Create user config if it doesn't exist
+          if [ ! -f "$USER_CONFIG" ]; then
+            cat > "$USER_CONFIG" << ENYK
+          prop.usr.root=$USER_DATA_DIR
+          prop.usr.saves=mentesek
+          prop.usr.archive=archivum
+          prop.usr.import=import
+          prop.usr.settings=beallitasok
+          prop.usr.kontroll=kontroll
+          prop.usr.attachment=csatolmanyok
+          prop.usr.tmp=tmp
+          prop.usr.tmp_xml=xml
+          prop.usr.tmp_calc=calc
+          prop.usr.ds_src=KR/digitalis_alairas
+          prop.usr.ds_dest=KR/kuldendo
+          prop.usr.ds_sent=KR/elkuldott
+          ENYK
+          fi
+
+          # Set KRDIR environment variable for electronic submission
+          export KRDIR="$USER_DATA_DIR/eKuldes"
+
+          # Run ÁNYK with embedded Java 21
+          cd "$ANYK_HOME"
+          exec "$JAVA_HOME/bin/java" \
+            --add-opens java.base/java.lang=ALL-UNNAMED \
+            --add-opens java.desktop/sun.awt=ALL-UNNAMED \
+            -Xbootclasspath/a:"$JAXB_CLASSPATH" \
+            -Xdock:name="ÁNYK" \
+            -Xdock:icon="$APP_DIR/Contents/Resources/anyk.icns" \
+            -jar "$ANYK_HOME/abevjava.jar" cfg=cfg.enyk "useroptionfile=$USER_CONFIG"
+          EOF
+          chmod +x "$APP_NAME/Contents/MacOS/anyk"
+
+      - name: Create DMG
+        run: |
+          ARCH="${{ matrix.arch }}"
+          if [ "$ARCH" = "aarch64" ]; then
+            ARCH_NAME="arm64"
+          else
+            ARCH_NAME="x64"
+          fi
+          VERSION="${{ steps.version.outputs.version }}"
+          DMG_NAME="ANYK-${VERSION}-${ARCH_NAME}.dmg"
+
+          # Create a temporary directory for DMG contents
+          mkdir -p dmg_contents
+          cp -r "ÁNYK.app" dmg_contents/
+
+          # Create a symlink to Applications
+          ln -s /Applications dmg_contents/Applications
+
+          # Create DMG
+          hdiutil create -volname "ÁNYK" -srcfolder dmg_contents -ov -format UDZO "$DMG_NAME"
+
+          echo "dmg_name=$DMG_NAME" >> $GITHUB_OUTPUT
+        id: dmg
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ANYK-${{ matrix.arch }}
+          path: "*.dmg"
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "ÁNYK ${{ github.ref_name }}"
+          body: |
+            ## ÁNYK Standalone App Bundle
+
+            This release contains standalone `.app` bundles for macOS with embedded Java 21 runtime.
+            No Homebrew or separate Java installation required.
+
+            ### Downloads
+
+            - **Apple Silicon (M1/M2/M3)**: `ANYK-${{ github.ref_name }}-arm64.dmg`
+            - **Intel Macs**: `ANYK-${{ github.ref_name }}-x64.dmg`
+
+            ### Installation
+
+            1. Download the appropriate DMG for your Mac
+            2. Open the DMG file
+            3. Drag ÁNYK to your Applications folder
+            4. Right-click and select "Open" (first time only, to bypass Gatekeeper)
+
+            ### Features
+
+            - HiDPI/Retina display support
+            - Embedded Java 21 runtime
+            - No external dependencies required
+
+            ### User Data
+
+            - User data is stored in: `~/abevjava`
+            - Electronic submissions: `~/abevjava/eKuldes`
+            - Configuration: `~/.abevjava/`
+          files: artifacts/*.dmg
+          draft: false
+          prerelease: false

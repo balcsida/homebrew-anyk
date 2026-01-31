@@ -67,6 +67,42 @@ jobs:
           curl -sL -o lib/jakarta.activation-1.2.2.jar \
             "https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/1.2.2/jakarta.activation-1.2.2.jar"
 
+      - name: Download and extract NAV form templates
+        run: |
+          mkdir -p templates
+
+          # Template definitions: folder|filename
+          declare -a TEMPLATES=(
+            "igazol|NAV_igazol"
+            "08E|nav_08e"
+            "24HIPAK|nav_24hipak"
+            "2541|nav_2541"
+            "25HIPAK|nav_25hipak"
+            "2658|nav_2658"
+            "26HIPAK|nav_26hipak"
+            "26KISKER|nav_26kisker"
+            "26KTBEV|nav_26ktbev"
+            "NAV_J28|NAV_nav_j28"
+            "NAV_J31|NAV_nav_j31"
+            "NAV_J32|NAV_j32"
+            "nav_j24|NAV_j24"
+          )
+
+          for template in "${TEMPLATES[@]}"; do
+            IFS='|' read -r folder filename <<< "$template"
+            echo "Downloading template: $folder/$filename"
+
+            curl -sL -o "templates/${filename}.jar" \
+              "https://nav.gov.hu/pfile/programFile?path=/nyomtatvanyok/letoltesek/nyomtatvanykitolto_programok/nyomtatvanykitolto_programok_nav/${folder}/${filename}"
+
+            # Extract template files
+            unzip -o -q "templates/${filename}.jar" "application/*" -d templates/ 2>/dev/null || true
+          done
+
+          # List extracted templates
+          echo "Extracted templates:"
+          find templates/application -name "*.tem.enyk" 2>/dev/null || true
+
       - name: Create app bundle structure
         run: |
           APP_NAME="ÁNYK.app"
@@ -87,6 +123,13 @@ jobs:
           cp -r jre "$APP_NAME/Contents/PlugIns/jre"
           # Copy icon
           cp os/install/mac/abevjava.app/Contents/Resources/abevjava.icns "$APP_NAME/Contents/Resources/anyk.icns"
+          # Copy extracted template files
+          if [ -d "templates/application" ]; then
+            cp -r templates/application/* "$APP_NAME/Contents/Java/"
+          fi
+          # List included templates
+          echo "Included templates:"
+          ls -la "$APP_NAME/Contents/Java/nyomtatvanyok/" 2>/dev/null || echo "No templates found"
 
       - name: Create Info.plist
         run: |
@@ -242,7 +285,7 @@ jobs:
 
             ### Downloads
 
-            - **Apple Silicon (M1/M2/M3)**: `ANYK-${{ github.ref_name }}-arm64.dmg`
+            - **Apple Silicon (M1/M2/M3/M4)**: `ANYK-${{ github.ref_name }}-arm64.dmg`
             - **Intel Macs**: `ANYK-${{ github.ref_name }}-x64.dmg`
 
             ### Installation
@@ -256,7 +299,16 @@ jobs:
 
             - HiDPI/Retina display support
             - Embedded Java 21 runtime
+            - **All NAV form templates included** (no separate download needed)
             - No external dependencies required
+
+            ### Included Templates
+
+            - NAV IGAZOL (certificate request)
+            - NAV 08E, 2541, 2658
+            - NAV 24HIPAK, 25HIPAK, 26HIPAK
+            - NAV 26KISKER, 26KTBEV
+            - NAV J24, J28, J31, J32
 
             ### User Data
 

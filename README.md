@@ -20,7 +20,7 @@ Az önálló alkalmazás Intel és Apple Silicon Mac gépeken is működik, tart
 
 ### 2. lehetőség: Homebrew
 
-Először add hozzá a tap-ot:
+Először add hozzá a tap-et:
 
 ```bash
 brew tap balcsida/anyk
@@ -101,19 +101,10 @@ Felhasználói adatok és konfiguráció eltávolítása is:
 brew uninstall --cask --zap anyk
 ```
 
-## Hibaelhárítás
-
-### Java nem található
-
-Ha Java hibát kapsz, győződj meg róla, hogy a Java 21 telepítve van:
-
-```bash
-brew install --cask temurin@21
-```
-
 ## Licenc
 
-Ez a tap a felhasználók kényelméért készült. Az ÁNYK-t a Nemzeti Adó- és Vámhivatal (NAV) fejleszti és tartja karban.
+Ez a macOS felhasználók kényelméért készült, minden jog az eredeti jogtulajdonosoké.
+Az ÁNYK-t a Nemzeti Adó- és Vámhivatal (NAV) fejleszti és tartja karban.
 
 ## Linkek
 

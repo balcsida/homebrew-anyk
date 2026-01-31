@@ -1,4 +1,4 @@
-cask "nav-igazol" do
+cask "anyk-nav-igazol" do
   version :latest
   sha256 :no_check
 

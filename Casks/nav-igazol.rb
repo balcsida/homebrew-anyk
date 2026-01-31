@@ -8,41 +8,34 @@ cask "nav-igazol" do
   homepage "https://nav.gov.hu/nyomtatvanyok/letoltesek/nyomtatvanykitolto_programok/nyomtatvanykitolto_programok_nav/igazol"
 
   depends_on cask: "anyk"
-  depends_on cask: "zulu@8"
 
   preflight do
     # Check if ÁNYK is installed
     config_file = "#{HOMEBREW_PREFIX}/etc/abevjavapath.cfg"
     unless File.exist?(config_file)
-      odie "ÁNYK is not installed. Please run 'anyk' first to complete the installation."
+      odie "ÁNYK is not installed. Please install it first with: brew install --cask anyk"
     end
-  end
 
-  postflight do
-    # Get ÁNYK installation directory
-    config_file = "#{HOMEBREW_PREFIX}/etc/abevjavapath.cfg"
-    anyk_dir = File.read(config_file).strip if File.exist?(config_file)
+    # Extract template files from JAR
+    system_command "/usr/bin/unzip",
+                   args: ["-o", "-q", "#{staged_path}/NAV_IGAZOL.jar", "application/*", "-d", staged_path.to_s]
 
-    if anyk_dir.nil? || anyk_dir.empty? || !Dir.exist?(anyk_dir)
-      opoo "ÁNYK installation directory not found. Please run the template installer manually."
-      opoo "Template JAR location: #{staged_path}/NAV_IGAZOL.jar"
-    else
-      # Run the template installer
-      java_home = `"/usr/libexec/java_home" -v 1.8 2>/dev/null`.strip
-      if java_home.empty?
-        opoo "Java 8 not found. Please install the template manually."
-      else
-        system "#{java_home}/bin/java", "-jar", "#{staged_path}/NAV_IGAZOL.jar"
-      end
+    # Get ÁNYK installation directory and copy template files
+    anyk_dir = File.read(config_file).strip
+
+    # Copy template files to ÁNYK directories
+    Dir.glob("#{staged_path}/application/**/*").each do |src|
+      next if File.directory?(src)
+
+      relative_path = src.sub("#{staged_path}/application/", "")
+      dest = File.join(anyk_dir, relative_path)
+      FileUtils.mkdir_p(File.dirname(dest))
+      FileUtils.cp(src, dest)
     end
   end
 
   caveats <<~EOS
-    NAV IGAZOL template has been installed!
-
-    If the automatic installation didn't work:
-      1. Open ÁNYK
-      2. Go to Telepítések (Installations) menu
-      3. Install the template from: #{staged_path}/NAV_IGAZOL.jar
+    NAV IGAZOL template has been installed automatically.
+    Open ÁNYK and the template will be available.
   EOS
 end

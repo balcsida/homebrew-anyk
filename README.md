@@ -56,26 +56,29 @@ Az ÁNYK nyomtatványsablonokat igényel az űrlapok létrehozásához. A sablon
 
 ### Elérhető sablonok
 
-| Cask | Leírás | Telepítési parancs |
-|------|--------|--------------------|
-| `anyk-nav-igazol` | NAV igazolás kérelem | `brew install --cask anyk-nav-igazol` |
-| `anyk-08e` | NAV 08E nyomtatvány | `brew install --cask anyk-08e` |
-| `anyk-24hipak` | NAV 24HIPAK nyomtatvány | `brew install --cask anyk-24hipak` |
-| `anyk-2541` | NAV 2541 nyomtatvány | `brew install --cask anyk-2541` |
-| `anyk-25hipak` | NAV 25HIPAK nyomtatvány | `brew install --cask anyk-25hipak` |
-| `anyk-2658` | NAV 2658 nyomtatvány | `brew install --cask anyk-2658` |
-| `anyk-26hipak` | NAV 26HIPAK nyomtatvány | `brew install --cask anyk-26hipak` |
-| `anyk-26kisker` | NAV 26KISKER nyomtatvány | `brew install --cask anyk-26kisker` |
-| `anyk-26ktbev` | NAV 26KTBEV nyomtatvány | `brew install --cask anyk-26ktbev` |
-| `anyk-nav-j24` | NAV J24 nyomtatvány | `brew install --cask anyk-nav-j24` |
-| `anyk-nav-j28` | NAV J28 nyomtatvány | `brew install --cask anyk-nav-j28` |
-| `anyk-nav-j31` | NAV J31 nyomtatvány | `brew install --cask anyk-nav-j31` |
-| `anyk-nav-j32` | NAV J32 nyomtatvány | `brew install --cask anyk-nav-j32` |
+**Több mint 550 NAV nyomtatványsablon érhető el!** A sablonok automatikusan generálódnak a NAV API-ból.
+
+Sablon telepítése (a nyomtatvány azonosítójával):
+
+```bash
+brew install --cask anyk-25szja      # SZJA bevallás
+brew install --cask anyk-2658        # Járulék bevallás
+brew install --cask anyk-26hipak     # Helyi iparűzési adó
+brew install --cask anyk-igazol      # NAV igazolás kérelem
+```
+
+### Sablonok keresése
+
+Az összes elérhető sablon listázása:
+
+```bash
+brew search balcsida/anyk/anyk-
+```
 
 ### Több sablon telepítése egyszerre
 
 ```bash
-brew install --cask anyk-nav-igazol anyk-24hipak anyk-nav-j28
+brew install --cask anyk-25szja anyk-2658 anyk-igazol
 ```
 
 ## Követelmények

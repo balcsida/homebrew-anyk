@@ -75,3 +75,15 @@ jobs:
           labels: |
             automated
             templates
+
+      # GitHub disables scheduled workflows after 60 days without repo activity
+      - name: Keep workflow alive
+        if: github.event_name == 'schedule' && steps.changes.outputs.has_changes == 'false'
+        run: |
+          age=$(( ($(date +%s) - $(git log -1 --format=%ct)) / 86400 ))
+          if [ "$age" -lt 50 ]; then exit 0; fi
+          git reset
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: keep scheduled workflow alive"
+          git push
